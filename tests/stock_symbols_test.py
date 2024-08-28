@@ -1,37 +1,21 @@
 import pytest
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from page_objects.google_finance import GoogleFinancePage
+from page_objects.google_finance_page import GoogleFinancePage
 
 GIVEN_TEST_DATA = ["NFLX", "MSFT", "TSLA"]
 
 
 @pytest.fixture(scope="session")
-def driver():
-    print("\nSetting up the WebDriver\n")
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(options=chrome_options)
-    yield driver
-    print("\nTearing down the WebDriver\n")
-    driver.quit()
-
-
-@pytest.fixture(scope="session")
-def google_finance_page(driver):
-    page = GoogleFinancePage(driver)
+def google_finance_page(browser, base_url):
+    page = GoogleFinancePage(browser, base_url)
     return page
 
 
 def test_open_google_finance(google_finance_page):
-    # google_finance_page.open()
-    assert google_finance_page.verify_page_title(), "\nPage title does not match.\n"
+    assert "Google Finance" in google_finance_page.get_page_title, "\nPage title does not match.\n"
 
 
 def test_retrieve_stock_symbols(google_finance_page):
-    listed_symbols = google_finance_page.get_stock_symbols()
+    listed_symbols = google_finance_page.get_stock_symbol_texts
     assert len(listed_symbols) > 0, "\nNo stock symbols found on the page.\n"
     return listed_symbols
 
